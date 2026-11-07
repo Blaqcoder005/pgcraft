@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: pgcraft
+Version: 0.1.0
+Summary: A lightweight, chainable Postgres query builder for Python
+License: MIT
+Project-URL: Homepage, https://github.com/Blaqcoder005/pgcraft
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: pg8000>=1.29.0
+Provides-Extra: psycopg2
+Requires-Dist: psycopg2-binary>=2.9.0; extra == "psycopg2"

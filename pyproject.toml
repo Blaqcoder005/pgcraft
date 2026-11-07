@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"  
+
+[project]
+name = "pgcraft"
+version = "0.1.0"
+description = "A lightweight, chainable Postgres query builder for Python"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+dependencies = [
+    "pg8000>=1.29.0",
+]
+
+[project.optional-dependencies]
+psycopg2 = ["psycopg2-binary>=2.9.0"]
+
+[project.urls]
+Homepage = "https://github.com/Blaqcoder005/pgcraft"
