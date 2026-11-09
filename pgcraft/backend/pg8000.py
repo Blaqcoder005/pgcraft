@@ -2,9 +2,8 @@ import pg8000
 import json
 from ..exception import ConnectionError, QueryError
 
-
 class Pg8000Backend:
-    def __init__(self, host, database, user, password, port=5432):
+    def __init__(self, host, database, user, password, port=5432, ssl_context=None):
         self.conn_params = {
             "host": host,
             "database": database,
@@ -12,6 +11,8 @@ class Pg8000Backend:
             "password": password,
             "port": port,
         }
+        if ssl_context is not None:
+            self.conn_params["ssl_context"] = ssl_context
 
     def connect(self):
         try:

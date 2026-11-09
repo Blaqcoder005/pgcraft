@@ -49,17 +49,37 @@ class Database:
         return [self._backend.row_to_dict(columns, row) for row in rows]
 
 
+import ssl as ssl_lib
+from urllib.parse import urlparse, unquote, parse_qs
+
+
 def connect(
+    url=None,
     host=None,
     database=None,
     user=None,
     password=None,
     port=None,
     engine=None,
+    ssl=None,          # True, or an ssl.SSLContext
     cache=None,
     cache_url=None,
 ):
-    # Fall back to env vars if not passed directly
+    url = url or os.getenv("DATABASE_URL")
+    use_ssl = ssl
+
+    if url:
+        u = urlparse(url)
+        host = host or u.hostname
+        database = database or u.path.lstrip("/")
+        user = user or (unquote(u.username) if u.username else None)
+        password = password or (unquote(u.password) if u.password else None)
+        port = port or u.port
+        # honour ?sslmode=require
+        sslmode = parse_qs(u.query).get("sslmode", [None])[0]
+        if use_ssl is None and sslmode in ("require", "verify-ca", "verify-full"):
+            use_ssl = True
+
     host = host or os.getenv("DB_HOST", "localhost")
     database = database or os.getenv("DB_NAME", "postgres")
     user = user or os.getenv("DB_USER", "postgres")
@@ -69,6 +89,12 @@ def connect(
     cache = cache or os.getenv("CACHE") or None
     cache_url = cache_url or os.getenv("CACHE_URL") or None
 
+    ssl_context = None
+    if use_ssl is True:
+        ssl_context = ssl_lib.create_default_context()
+    elif isinstance(use_ssl, ssl_lib.SSLContext):
+        ssl_context = use_ssl
+
     # Setup backend
     if engine == "pg8000":
         b = Pg8000Backend(
@@ -77,6 +103,7 @@ def connect(
             user=user,
             password=password,
             port=port,
+            ssl_context=ssl_context,
         )
     elif engine == "psycopg2":
         from .backends.psycopg2 import Psycopg2Backend
